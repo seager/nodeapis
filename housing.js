@@ -84,7 +84,8 @@ housing.get('/houseowner', function(req, res) {
     if(houseid != null && houseid != ""){
         res.json(findowner(houseid));
     } else {
-    	res.status(400).json( {error: 'You must provide a query parameter houseid, set to a valid house record id'});
+      res.json(owners);
+    	//res.status(400).json( {error: 'You must provide a query parameter houseid, set to a valid house record id'});
     } // end check query param postcode
 
 });
@@ -113,7 +114,6 @@ housing.put('/houseowner', jsonParser, function(req, res) {
     } else {
        owners[arrayindex].owner = newowner;
        owners[arrayindex].mortgageprovider = newmortgageprovider;
-       console.log("changed");
        res.sendStatus(202);
     }
   //  res.json(findowner(houseid));
@@ -177,7 +177,8 @@ housing.get('/postcodelookup', function(req, res) {
 	  }
       //res.json({housing: ' req.query.postcode = ' + req.query.postcode});
   } else {
-	res.status(400).json( {error: 'You must provide a query parameter postcode, set to a postcode'});
+    res.json(locations);
+  	//res.status(400).json( {error: 'You must provide a query parameter postcode, set to a postcode'});
   } // end check query param postcode
 
   //res.sendFile(__dirname + '/housing.html');
