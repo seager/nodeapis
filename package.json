@@ -1,0 +1,14 @@
+{
+  "name": "housingapi",
+  "version": "1.0.0",
+  "description": "A collection of useful REST APIs written in node",
+  "main": "housing.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.17.0"
+  }
+}
