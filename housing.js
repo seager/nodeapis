@@ -1,5 +1,6 @@
 var express = require('express');
 var bodyParser = require('body-parser')
+var path = require('path');
 
 var housing = express();
 
@@ -15,25 +16,34 @@ var ids = [ 12345, 2468, 98765, 54321, 11111, 44444, 77777, 99999, 30003, 64201]
 
 housing.get('/houseid', function(req, res) {
 
+	var METHOD = "/houseid GET ";
+	console.log(METHOD + "query params: " + JSON.stringify(req.query, null, ""));
+
     res.setHeader("Content-Type", "application/json");
 
     var housenumber = req.query.housenumber;
     var postcode = req.query.postcode;
 
+	var resp = null;
+	
     if(postcode != null && postcode != ""
         && housenumber != null && housenumber != "") {
         // Return Successful API invoke
         var digit = housenumber.charAt(0);
         if (digit.match(/^[0-9]/)){
-  	      res.json(ids[digit]);
+			resp = {id: ids[digit]};
      	  } else {
-  	      res.status(400).json( {error: 'house number starts with non-numeric character.'});
+  	      res.status(400);
+		  resp = {error: 'house number starts with non-numeric character.'};
   	    }
         //res.json({housing: ' req.query.postcode = ' + req.query.postcode});
     } else {
-  	  res.status(400).json( {error: 'You must provide a query parameter postcode, set to a postcode'});
+  	  res.status(400);
+	  resp = {error: 'You must provide a query parameter housenumber and postcode'};
     } // end check query param postcode
 
+	console.log(METHOD + "response: " + JSON.stringify(resp, null, ""));
+	res.json(resp);
 });
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -77,48 +87,67 @@ function idexists(theid) {
 
 housing.get('/houseowner', function(req, res) {
 
+	var METHOD = "/houseowner GET ";
+	console.log(METHOD + "query params: " + JSON.stringify(req.query, null, ""));
+
     res.setHeader("Content-Type", "application/json");
 
     var houseid = req.query.houseid;
 
+	var resp = null;
     if(houseid != null && houseid != ""){
-        res.json(findowner(houseid));
+        resp = findowner(houseid);
     } else {
-      res.json(owners);
-    	//res.status(400).json( {error: 'You must provide a query parameter houseid, set to a valid house record id'});
-    } // end check query param postcode
+      resp = owners;
+    }
 
+	console.log(METHOD + "response: " + JSON.stringify(resp, null, ""));
+	res.json(resp);
 });
 
 housing.put('/houseowner', jsonParser, function(req, res) {
+	var METHOD = "/houseowner PUT ";
     res.setHeader("Content-Type", "application/json");
 
+	console.log(METHOD + "query params: " + JSON.stringify(req.query, null, "") + " req body: " + JSON.stringify(req.body, null, ""));
+
+	var resp = null;
+	
     var houseid = req.query.houseid;
     if (houseid == null || houseid == "") {
-      res.status(400).json( {error: 'You must provide a message body containing owner and mortgageprovider fields'});
-    }
-
-    if(req.body != null && req.body != ""
-      && req.body.owner != null && req.body.owner != ""
-      && req.body.mortgageprovider != null && req.body.mortgageprovider != "") {
-      var newowner = req.body.owner;
-      var newmortgageprovider = req.body.mortgageprovider;
+      res.status(400);
+	  resp = {error: 'You must provide a query parameter of houseid'};
     } else {
-      res.status(400).json( {error: 'You must provide a message body containing owner and mortgageprovider fields'});
-    }
+		if(req.body != null && req.body != ""
+		  && req.body.owner != null && req.body.owner != ""
+		  && req.body.mortgageprovider != null && req.body.mortgageprovider != "") {
+		  var newowner = req.body.owner;
+		  var newmortgageprovider = req.body.mortgageprovider;
+		  
+			var arrayindex = idexists(houseid);
+			if (arrayindex == -1) {
+			  console.log("no id")
+			   res.status(400);
+			   resp = {error: ' no house with id:'  + houseid};
+			} else {
+			   owners[arrayindex].owner = newowner;
+			   owners[arrayindex].mortgageprovider = newmortgageprovider;
+			   res.sendStatus(200);
+			}
+		  
+		} else {
+		  res.status(400);
+		  resp = {error: 'You must provide a message body containing owner and mortgageprovider fields'};
+		}
 
-    var arrayindex = idexists(houseid);
-    if (arrayindex == -1) {
-      console.log("no id")
-       res.status(400).json( {error: ' no house with id:'  + theid});
-    } else {
-       owners[arrayindex].owner = newowner;
-       owners[arrayindex].mortgageprovider = newmortgageprovider;
-       res.sendStatus(202);
-    }
-  //  res.json(findowner(houseid));
+	}
 
-
+	if(resp !== null) {
+		console.log(METHOD + "response: " + JSON.stringify(resp, null, ""));
+		res.json(resp);
+	} else {
+		console.log(METHOD + "response 200 OK");
+	}
 });
 
 
@@ -134,9 +163,13 @@ var locations = [
 ];
 
 housing.get('/postcodelookup', function(req, res) {
+	var METHOD = "/postcodelookup GET ";
+	console.log(METHOD + "query params: " + JSON.stringify(req.query, null, ""));
 
   res.setHeader("Content-Type", "application/json");
 
+  var resp = null;
+  
   // check headers //
   var CTHeader = req.header('Content-Type');
 
@@ -163,29 +196,39 @@ housing.get('/postcodelookup', function(req, res) {
   if(postcode != null && postcode != "") {
       // Return Successful API invoke
       if (postcode.match(/^so|SO/)){
-	    res.json(locations[0]);
+	    resp = locations[0];
 	  } else if (postcode.match(/^m|M/)){
-	    res.json(locations[1]);
+	    resp = locations[1];
 	  } else if (postcode.match(/^se|SE/)){
-	    res.json(locations[2]);
+	    resp = locations[2];
     } else if (postcode.match(/^pl|PL/)){
-	    res.json(locations[3]);
+	    resp = locations[3];
 	  } else {
-	    res.json(locations[4]);
+	    resp = locations[4];
 //	  } else {
 //	    res.status(400).json( {error: 'postcode starts with invalid character.'});
 	  }
       //res.json({housing: ' req.query.postcode = ' + req.query.postcode});
   } else {
-    res.json(locations);
+    resp = locations;
   	//res.status(400).json( {error: 'You must provide a query parameter postcode, set to a postcode'});
   } // end check query param postcode
 
-  //res.sendFile(__dirname + '/housing.html');
+  	console.log(METHOD + "response: " + JSON.stringify(resp, null, ""));
+	res.json(resp);
+});
+
+// root
+housing.get('/', function(req, res) {
+	res.sendFile(path.join(__dirname, "/index.html"));
 });
 
 housing.listen(80, function() {
   console.log('Housing app listening on port 80.')
-})
+});
+
+housing.listen(9080, function() {
+  console.log('Housing app listening on port 9080.')
+});
 
 module.exports = housing;

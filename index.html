@@ -1,0 +1,57 @@
+<html>
+<body>
+<h1>Test APIs</h1>
+APIs for testing with.
+
+<h2>GET /houseid</h2>
+Get the ID of the house.
+<p>Request query parameters:<ul>
+<li>housenumber - number of house</li>
+<li>postcode - postcode of house</li>
+</ul></p>
+<p>Response body contains the ID:</p>
+<pre>
+{"id": id of house}
+</pre>
+
+<h2>GET /houseowner</h2>
+Get details of a house.
+<p>Request query parameters:<ul>
+<li>houseid - valid house ID</li>
+</ul></p>
+<p>Response body contains the house details:</p>
+<pre>
+{"id":"2468","owner":"David Seager","mortgageprovider":"Local Bank"}
+</pre>
+
+<h2>PUT /houseowner</h2>
+Update details of a house.
+<p>Request query parameters:<ul>
+<li>houseid - valid house ID</li>
+</ul></p>
+<p>Request body:</p>
+<pre>
+{ "owner" : new owner, "mortgageprovider": new mortgage provider }
+</pre>
+<p>Response empty body with code 200</p>
+
+<h2>GET /postcodelookup</h2>
+Get location details from a postcode.
+<p>Request query parameters:<ul>
+<li>postcode - postcode for example SO21 2JN. If not supplied returns all locations.</li>
+</ul></p>
+<p>Response body contains the location. For all locations an array:</p>
+<pre>
+[
+{"long":"1.39870","lat":"51.02655","building":"Bank A","street":"Hursley Park Road","area":"Hursley","town":"Winchester","county":"Hampshire","postcode":"SO21 2JN"},
+...
+]
+</pre>
+<p>For a specific location, the location:</p>
+<pre>
+{"long":"1.39870","lat":"51.02655","building":"Bank A","street":"Hursley Park Road","area":"Hursley","town":"Winchester","county":"Hampshire","postcode":"SO21 2JN"}
+</pre>
+
+
+</body>
+</html>
